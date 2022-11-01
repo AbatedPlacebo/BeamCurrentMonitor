@@ -10,16 +10,16 @@
 typedef unsigned char byte;
 
 enum COMMANDS {
-	WRITE_RGSTR = 0x00;
-	START_CYCLE = 0x03;
-	READ_PARAM = 0x04;
-	RESET_CYCL = 0x05;
-	INIT_GENER = 0x06;
-	RESET_COUNT = 0x07;
-	READ_ADCBUF = 0x08;
-	WRITE_FLASH = 0x09;
-	REWRITE_CONF = 0x0a;
-	READ_FLASH = 0x0f;
+	WRITE_RGSTR = 0x00,
+	START_CYCLE = 0x03,
+	READ_PARAM = 0x04,
+	RESET_CYCL = 0x05,
+	INIT_GENER = 0x06,
+	RESET_COUNT = 0x07,
+	READ_ADCBUF = 0x08,
+	WRITE_FLASH = 0x09,
+	REWRITE_CONF = 0x0a,
+	READ_FLASH = 0x0f,
 };
 
 int inputcommands[] = {
@@ -33,7 +33,7 @@ int inputcommands[] = {
 	0x09,
 	0x0a,
 	0x0f
-}	
+};	
 
 void printmenu(){
 		printf("0 - EXIT\n"
@@ -49,13 +49,30 @@ void printmenu(){
 				"10 - READ FLASH PARAMETERS\n");
 }
 
+void createmessage(byte** array, int command){
+	scanf("%d", &command);
+	sendmessage[0] = inputcommands[command];
+	if (command == 0){
+		int regist = 0;
+		printf("Enter register's number");
+		scanf("%d",&regist);
+		
+	}
+	sendmessage[1] = 0x00;
+	sendmessage[2] = 0x00;
+	sendmessage[3] = 0x00;
+	sendmessage[4] = 0x00;
+	sendmessage[5] = 0x00;
+}
+
 void error(char *msg) {
     perror(msg);
     exit(0);
 }
 
 int main(int argc, char **argv) {
-    int sockfd, portno, n;
+    int sockfd, portno;
+	ssize_t n;
 	int i;
     int serverlen;
     struct sockaddr_in serveraddr;
@@ -94,8 +111,6 @@ int main(int argc, char **argv) {
 		int command;
 		printf("Enter a command: ");
 		printmenu();
-		scanf("%d", &command);
-		
 		/* sends the message to the server */
 		serverlen = sizeof(serveraddr);
 		sendmessage[0] = inputcommands[command];
