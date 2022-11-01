@@ -7,12 +7,48 @@
 #include <netinet/in.h>
 #include <netdb.h> 
 
-#define BUFSIZE 1024
-
-/* 
- *  * error - wrapper for perror
- *   */
 typedef unsigned char byte;
+
+enum COMMANDS {
+	WRITE_RGSTR = 0x00;
+	START_CYCLE = 0x03;
+	READ_PARAM = 0x04;
+	RESET_CYCL = 0x05;
+	INIT_GENER = 0x06;
+	RESET_COUNT = 0x07;
+	READ_ADCBUF = 0x08;
+	WRITE_FLASH = 0x09;
+	REWRITE_CONF = 0x0a;
+	READ_FLASH = 0x0f;
+};
+
+int inputcommands[] = {
+	0x00,
+	0x03,
+	0x04,
+	0x05,
+	0x06,
+	0x07,
+	0x08,
+	0x09,
+	0x0a,
+	0x0f
+}	
+
+void printmenu(){
+		printf("0 - EXIT\n"
+				"1 - WRITE REGISTER\n"
+				"2 - START CYCLE\n"
+				"3 - READ PARAMETER\n"
+				"4 - RESET CYCLE\n"
+				"5 - INIT GENERATOR\n"
+				"6 - RESET COUNTER\n"
+				"7 - READ ADC BUFFER\n"
+				"8 - WRITE FLASH PARAMETERS\n"
+				"9 - REWRITE CONFIGURATIONS\n"
+				"10 - READ FLASH PARAMETERS\n");
+}
+
 void error(char *msg) {
     perror(msg);
     exit(0);
@@ -24,7 +60,7 @@ int main(int argc, char **argv) {
     int serverlen;
     struct sockaddr_in serveraddr;
     struct hostent *server;
-    char *hostname;
+    char* hostname;
     byte buf[100];
 	byte sendmessage[6];
     /* check command line arguments */
@@ -53,30 +89,37 @@ int main(int argc, char **argv) {
     bcopy((char *)server->h_addr, 
 	  (char *)&serveraddr.sin_addr.s_addr, server->h_length);
     serveraddr.sin_port = htons(portno);
-	
-	/* send the message to the server */
-    serverlen = sizeof(serveraddr);
-	sendmessage[0] = 0x03;
-	sendmessage[1] = 0x00;
-	sendmessage[2] = 0x00;
-	sendmessage[3] = 0x00;
-	sendmessage[4] = 0x00;
-	sendmessage[5] = 0x00;
-	    printf("sending message:\n");
-	for (i = 0; i<6;i++){
-		printf("%d\n",sendmessage[i]);
-	}
-n = sendto(sockfd, sendmessage, 6, 0, &serveraddr, serverlen);
-    if (n < 0) 
-      error("ERROR in sendto");
+	// Communication cycle begins
+	while (1){
+		int command;
+		printf("Enter a command: ");
+		printmenu();
+		scanf("%d", &command);
+		
+		/* sends the message to the server */
+		serverlen = sizeof(serveraddr);
+		sendmessage[0] = inputcommands[command];
+		sendmessage[1] = 0x00;
+		sendmessage[2] = 0x00;
+		sendmessage[3] = 0x00;
+		sendmessage[4] = 0x00;
+		sendmessage[5] = 0x00;
+			printf("sending message:\n");
+		for (i = 0; i<6;i++){
+			printf("%d\n",sendmessage[i]);
+		}
+		n = sendto(sockfd, sendmessage, 6, 0, &serveraddr, serverlen);
+		if (n < 0) 
+		  error("ERROR in sendto");
 
-    /* print the server's reply */
-    n = recvfrom(sockfd, buf, 4, 0, &serveraddr, &serverlen);
-    if (n < 0) 
-      error("ERROR in recvfrom");
-    printf("Echo from server:\n");
-	for (i = 0; i<6;i++){
-		printf("%d\n",buf[i]);
+		/* print the server's reply */
+		n = recvfrom(sockfd, buf, 4, 0, &serveraddr, &serverlen);
+		if (n < 0) 
+		  error("ERROR in recvfrom");
+		printf("Echo from server:\n");
+		for (i = 0; i<6;i++){
+			printf("%d\n",buf[i]);
+		}
 	}
-    return 0;
+	return 0;
 }
