@@ -8,6 +8,7 @@
 #include <netdb.h> 
 
 typedef unsigned char byte;
+typedef byte page[1034];
 
 enum COMMANDS {
 	WRITE_RGSTR = 0x00,
@@ -49,25 +50,68 @@ void printmenu(){
 				"10 - READ FLASH PARAMETERS\n");
 }
 
-void createmessage(byte** array, int command){
-	scanf("%d", &command);
-	sendmessage[0] = inputcommands[command];
-	if (command == 0){
-		int regist = 0;
-		printf("Enter register's number");
+void readADC(int sockfd, struct sockaddr_in serveraddr, int serverlen){
+	page pages[127];
+	int i, n;
+	for (i = 0; i < 127; i++){
+		n = recvfrom(sockfd, pages[i], 1034, 0, &serveraddr, &serverlen);
+	}
+	
+}
+
+void read_packet(int length, int sockfd, struct sockaddr_in serveraddr, int serverlen){
+	int n;
+    byte buf[100];
+	n = recvfrom(sockfd, buf, 4, 0, &serveraddr, &serverlen);
+	if (n < 0){
+		error("ERROR in recvfrom\n");
+		return;
+	}
+	printf("ACK from server:\n");
+	int i;
+	for (i = 0; i<4;i++){
+		printf("%#06X\n",buf[i]);
+	}
+	n = recvfrom(sockfd, buf, length, 0, &serveraddr, &serverlen);
+	if (n < 0){
+		error("ERROR in recvfrom\n");
+		return;
+	}
+	printf("PACK from server:\n");
+	for (i = 0; i<4;i++){
+		printf("%#04X\n",buf[i]);
+	}
+	printf("\n");
+}
+
+void createmessage(byte* array, int command){
+	array[0] = inputcommands[command-1];
+	array[1] = 0x00;
+	array[2] = 0x00;
+	array[3] = 0x00;
+	array[4] = 0x00;
+	array[5] = 0x00;
+	int data = 0;
+	int regist = 0;	
+	if (command == 1 || command == 3){
+		printf("Enter register's number 0-31: ");
 		scanf("%d",&regist);
+		array[1] = (byte)regist;
+	}
+	if (command == 7){
 		
 	}
-	sendmessage[1] = 0x00;
-	sendmessage[2] = 0x00;
-	sendmessage[3] = 0x00;
-	sendmessage[4] = 0x00;
-	sendmessage[5] = 0x00;
+	if (command == 1){
+		printf("Enter data 0-511: ");
+		scanf("%d",&data);
+		array[2] = data >> 8;
+		array[3] = data & 0xFF; 
+	}
 }
 
 void error(char *msg) {
-    perror(msg);
-    exit(0);
+    perror(msg); 
+	exit(0);
 }
 
 int main(int argc, char **argv) {
@@ -78,15 +122,14 @@ int main(int argc, char **argv) {
     struct sockaddr_in serveraddr;
     struct hostent *server;
     char* hostname;
-    byte buf[100];
 	byte sendmessage[6];
     /* check command line arguments */
-    if (argc != 3) {
-       fprintf(stderr,"usage: %s <hostname> <port>\n", argv[0]);
-       exit(0);
-    }
-    hostname = argv[1];
-    portno = atoi(argv[2]);
+//	if (argc != 3) {
+//		fprintf(stderr,"usage: %s <hostname> <port>\n", argv[0]);
+//		exit(0);
+//	}
+    hostname = "192.168.1.9";
+    portno = 2195;
 
     /* socket: create the socket */
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -108,33 +151,39 @@ int main(int argc, char **argv) {
     serveraddr.sin_port = htons(portno);
 	// Communication cycle begins
 	while (1){
-		int command;
-		printf("Enter a command: ");
+		int command = 0;
 		printmenu();
+		printf("Enter a command: ");
+		scanf("%d", &command);
+ 		if (command == 0)
+			break;
+		createmessage(sendmessage,command);
 		/* sends the message to the server */
-		serverlen = sizeof(serveraddr);
-		sendmessage[0] = inputcommands[command];
-		sendmessage[1] = 0x00;
-		sendmessage[2] = 0x00;
-		sendmessage[3] = 0x00;
-		sendmessage[4] = 0x00;
-		sendmessage[5] = 0x00;
-			printf("sending message:\n");
+		printf("sending message:\n");
 		for (i = 0; i<6;i++){
 			printf("%d\n",sendmessage[i]);
 		}
+		char confirm;
+		while (1){
+			printf("Are you sure? [y/n]\n");
+			scanf(" %c", &confirm);
+			printf("%d\n",confirm);
+			if ((confirm == 'n') || (confirm == 'N') ||
+			(confirm == 'y') || (confirm == 'Y') ){
+				break;
+				}	
+			else {
+				printf("Please, try again\n");
+			}
+		}
+		if (confirm == 'n' || confirm == 'N')
+			continue;
+		serverlen = sizeof(serveraddr);
 		n = sendto(sockfd, sendmessage, 6, 0, &serveraddr, serverlen);
 		if (n < 0) 
 		  error("ERROR in sendto");
-
 		/* print the server's reply */
-		n = recvfrom(sockfd, buf, 4, 0, &serveraddr, &serverlen);
-		if (n < 0) 
-		  error("ERROR in recvfrom");
-		printf("Echo from server:\n");
-		for (i = 0; i<6;i++){
-			printf("%d\n",buf[i]);
-		}
+		n = recvfrom(sockfd, buf, n, 0, &serveraddr, &serverlen);
 	}
 	return 0;
 }
