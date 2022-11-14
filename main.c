@@ -36,6 +36,19 @@ int inputcommands[] = {
 	0x0f
 };	
 
+int packetlengths[] = {
+	0,
+	2,
+	4,
+	0,
+	0,
+	4,
+	1034,
+	2,
+	0,
+	0
+};
+
 void printmenu(){
 		printf("0 - EXIT\n"
 				"1 - WRITE REGISTER\n"
@@ -50,18 +63,19 @@ void printmenu(){
 				"10 - READ FLASH PARAMETERS\n");
 }
 
-void readADC(int sockfd, struct sockaddr_in serveraddr, int serverlen){
-	page pages[127];
-	int i, n;
-	for (i = 0; i < 127; i++){
-		n = recvfrom(sockfd, pages[i], 1034, 0, &serveraddr, &serverlen);
-	}
-	
-}
+//void readADC(int sockfd, struct sockaddr_in serveraddr, int serverlen){
+//	int i, n;
+//	for (i = 0; i < 127; i++){
+//		n = recvfrom(sockfd, pages[i], 1034, 0, &serveraddr, &serverlen);
+//	}
+//	
+//}
 
 void read_packet(int length, int sockfd, struct sockaddr_in serveraddr, int serverlen){
 	int n;
-    byte buf[100];
+    byte buf[length];
+	page pages[128];
+	
 	n = recvfrom(sockfd, buf, 4, 0, &serveraddr, &serverlen);
 	if (n < 0){
 		error("ERROR in recvfrom\n");
@@ -70,15 +84,17 @@ void read_packet(int length, int sockfd, struct sockaddr_in serveraddr, int serv
 	printf("ACK from server:\n");
 	int i;
 	for (i = 0; i<4;i++){
-		printf("%#06X\n",buf[i]);
+		printf("%#04X\n",buf[i]);
 	}
+	if (length == 0)
+		return;
 	n = recvfrom(sockfd, buf, length, 0, &serveraddr, &serverlen);
 	if (n < 0){
 		error("ERROR in recvfrom\n");
 		return;
 	}
 	printf("PACK from server:\n");
-	for (i = 0; i<4;i++){
+	for (i = 0; i<length;i++){
 		printf("%#04X\n",buf[i]);
 	}
 	printf("\n");
@@ -93,12 +109,22 @@ void createmessage(byte* array, int command){
 	array[5] = 0x00;
 	int data = 0;
 	int regist = 0;	
+	int firstpage = 0;
+	int secondpage = 0;
 	if (command == 1 || command == 3){
 		printf("Enter register's number 0-31: ");
 		scanf("%d",&regist);
 		array[1] = (byte)regist;
 	}
 	if (command == 7){
+		printf("Enter first page number 0-127: ");
+		scanf("%d",&firstpage);
+		printf("Enter second page number 0-127: ");
+		scanf("%d",&secondpage);
+		array[2] = firstpage >> 8;
+		array[3] = firstpage & 0xFF; 
+		array[4] = secondpage >> 8;
+		array[5] = secondpage & 0xFF; 
 		
 	}
 	if (command == 1){
@@ -122,12 +148,9 @@ int main(int argc, char **argv) {
     struct sockaddr_in serveraddr;
     struct hostent *server;
     char* hostname;
+	//bool cycle = false; 
+	
 	byte sendmessage[6];
-    /* check command line arguments */
-//	if (argc != 3) {
-//		fprintf(stderr,"usage: %s <hostname> <port>\n", argv[0]);
-//		exit(0);
-//	}
     hostname = "192.168.1.9";
     portno = 2195;
 
@@ -149,6 +172,7 @@ int main(int argc, char **argv) {
     bcopy((char *)server->h_addr, 
 	  (char *)&serveraddr.sin_addr.s_addr, server->h_length);
     serveraddr.sin_port = htons(portno);
+
 	// Communication cycle begins
 	while (1){
 		int command = 0;
@@ -167,7 +191,6 @@ int main(int argc, char **argv) {
 		while (1){
 			printf("Are you sure? [y/n]\n");
 			scanf(" %c", &confirm);
-			printf("%d\n",confirm);
 			if ((confirm == 'n') || (confirm == 'N') ||
 			(confirm == 'y') || (confirm == 'Y') ){
 				break;
@@ -182,8 +205,7 @@ int main(int argc, char **argv) {
 		n = sendto(sockfd, sendmessage, 6, 0, &serveraddr, serverlen);
 		if (n < 0) 
 		  error("ERROR in sendto");
-		/* print the server's reply */
-		n = recvfrom(sockfd, buf, n, 0, &serveraddr, &serverlen);
+		read_packet(packetlengths[command-1], sockfd, serveraddr, serverlen);
 	}
 	return 0;
 }
