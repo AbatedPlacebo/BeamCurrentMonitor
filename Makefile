@@ -1,2 +1,2 @@
 all:
-	gcc BCMCommandParser.c BCMCommunication.c main.c -o main
+	gcc -std=c99 main.c BCMCommunication.c BCMCommandParser.c -o main -g -ggdb
