@@ -1,4 +1,3 @@
-
 #include "BCMCommunication.h"
 #include "BCMCommandParser.h"
 
@@ -8,8 +7,9 @@ int main(int argc, char* argv[]){
 	connection_credentials* cred;
 	cred = parse_ipaddress(argc, argv);
 	// Connecting to BCM
-	struct sockaddr_in connection = inititate_connection(cred);
+	initiate_connection(cred);
 	// Executing following commands
-	parse_commands(argc, argv);
+	commandlist* commands = parse_commands(argc, argv);
+	command_execution(commands, cred);
 	return 0;
 }

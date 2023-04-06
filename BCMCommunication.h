@@ -11,11 +11,10 @@
 #include <netinet/in.h>
 #include <netdb.h> 
 
-
 // Initiating connection between the host and BCM
-struct sockaddr_in inititate_connection(connection_credentials* cred);
+void initiate_connection(connection_credentials* cred);
 
 // Executing command
-void command_execution(const char* command);
+void command_execution(commandlist* commands, connection_credentials* connection);
 
 #endif
