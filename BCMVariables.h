@@ -9,7 +9,7 @@
 #include <stdio.h>
 
 #define COMM_LIST_COUNT 7
-#define ADDCOM_LIST_COUNT 2
+#define ADDCOM_LIST_COUNT 3
 
 typedef unsigned char byte;
 typedef byte page[1034];
@@ -29,7 +29,9 @@ typedef struct _commandlist {
 	size_t message_size;
 	struct _commandlist* next;
 	int output;
+	char* file_name;
 	int* result;
+	int result_size;
 } commandlist;
 
 enum commands {

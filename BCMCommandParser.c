@@ -6,7 +6,7 @@ commandlist* create_commandlist(int argc, char** argv){
 	for (int i = 0; i < argc; i++){
 		for (int j = 0; j < COMM_LIST_COUNT; j++){
 			if (strcmp(argv[i], string_commands[j]) == 0){
-				commandlist* curlist = create_next_command_node(&list, j);	
+				curlist = create_next_command_node(&list, j);	
 				int k = 0;
 				for (; k < curlist->args_count; k++){
 					curlist->args[k] = argv[i + k + 1];
@@ -14,29 +14,30 @@ commandlist* create_commandlist(int argc, char** argv){
 				i = i + k;
 				break;
 			}
-			else {
-				for (int j = 0; j < ADDCOM_LIST_COUNT; j++) {
-					int check = strcmp(argv[i], additional_commands[j]);
-					if (check == 0){
-						int _argc;
-						char** _argv;
-							switch (j){
-							case 0:
-							_argc = 0;
-							_argv = parse_script(argv[i+1], &_argc);
-							list = create_commandlist(_argc, _argv);
-							return list;
-							break;     
-							case 1:
-							debug_mode = atoi(argv[i + 1]);
+		}
+		for (int j = 0; j < ADDCOM_LIST_COUNT; j++) {
+			int check = strcmp(argv[i], additional_commands[j]);
+			if (check == 0){
+				int _argc;
+				char** _argv;
+				switch (j){
+					case 0:
+						_argc = 0;
+						_argv = parse_script(argv[i+1], &_argc);
+						list = create_commandlist(_argc, _argv);
+						return list;
+						break;     
+					case 1:
+						debug_mode = atoi(argv[i + 1]);
+						i++;
+						break;
+					case 2:
+						if (curlist != NULL){
+							curlist->output = 1;
+							curlist->file_name = argv[i + 1]; 
 							i++;
-							break;
-							case 2:
-							if (curlist != NULL)
-								curlist->output = 1;
-							break;
 						}
-					}
+						break;
 				}
 			}
 		}

@@ -26,29 +26,24 @@ byte* createmessage(commandlist* commands){
 	return array;
 }
 
-int* message_conversion(void* info, size_t size){
-	switch(size){
-		case sizeof(page):
-
-		break;
-		case sizeof(byte) * 4:
-		break;
-	}
-}
 
 byte* read_packet(int length, connection_credentials* con){
 	if (length == 0)
 		return NULL;
 	byte* buf = (byte*)malloc(sizeof(byte) * length);
-	int	n = recvfrom(con->sockfd, buf, length, 0, con->serveraddr, sizeof(*con->serveraddr)); 
-	if (n < 0){
-		return NULL;
-	}
-	int i = 0;
+	recvfrom(con->sockfd, buf, length, 0, con->serveraddr, sizeof(*con->serveraddr)); 
 	debug_printf(buf, length);
 	return buf;
 }
 
+byte* read_register(commandlist* commands, connection_credentials* con){
+	byte* buf = read_packet(commands->message_size, con);
+	int* result = (int*)malloc(sizeof(int));
+	*result = (buf[2] << 8) | (buf[3] & 0xFF);
+	commands->result = result;
+	commands->result_size = 1;
+	return buf;
+}
 byte* readADC(commandlist* commands, connection_credentials* con){
 	int* result;
 	int begin = atoi(commands->args[0]);
@@ -70,6 +65,7 @@ byte* readADC(commandlist* commands, connection_credentials* con){
 		}
 	}	
 	commands->result = result;
+	commands->result_size = count * 512;
 	return pages;
 }
 
@@ -82,9 +78,12 @@ int command_execution(commandlist* commands, connection_credentials* connection)
 		debug_printf(n, 1);
 		return 1;
 	}
-	read_packet(4, connection);
+	buf = read_packet(4, connection);
 	if (commands->number == 4){
 		buf = (byte*)readADC(commands, connection);
+	}
+	if (commands->number == 2){
+		buf = (byte*)read_register(commands, connection);
 	}
 	else {
 		buf = read_packet(commands->message_size, connection);

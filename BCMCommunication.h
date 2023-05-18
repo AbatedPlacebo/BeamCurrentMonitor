@@ -4,6 +4,7 @@
 
 #include "BCMVariables.h"
 #include "BCMCommandParser.h"
+#include "BCMIO.h"
 #include <sys/time.h>
 #include <stdio.h>
 #include <stdlib.h>

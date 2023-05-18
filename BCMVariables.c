@@ -71,6 +71,7 @@ commandlist* create_next_command_node(commandlist** curlist, int _commandnumber)
 	list->args_count = command_args_num[_commandnumber];
 	list->output = 0;
 	list->result = NULL;
+	list->result_size = 0;
 	if (list->args_count != 0)
 		list->args = (char**)malloc(sizeof(char*) * command_args_num[_commandnumber]);
 	if (seekelem == NULL){
