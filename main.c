@@ -1,6 +1,4 @@
 #include "BCMCommunication.h"
-#include "BCMCommandParser.h"
-
 
 int main(int argc, char* argv[]){
     // Getting ip-address
@@ -8,8 +6,12 @@ int main(int argc, char* argv[]){
 	cred = parse_ipaddress(argc, argv);
 	// Connecting to BCM
 	initiate_connection(cred);
-	// Executing following commands
+	// Parsing commands
 	commandlist* commands = parse_commands(argc, argv);
-	command_execution(commands, cred);
+	while (commands != NULL){
+		// Executing following commands
+		command_execution(commands, cred);
+		commands = commands->next;
+	}
 	return 0;
 }

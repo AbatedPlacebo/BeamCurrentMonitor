@@ -40,7 +40,7 @@ byte* read_packet(int length, connection_credentials* con){
 	if (length == 0)
 		return NULL;
 	byte* buf = (byte*)malloc(sizeof(byte) * length);
-	int	n = recvfrom(con->sockfd, buf, length, 0, con->serveraddr, sizeof(*con->serveraddr)); 
+	int	n = recvfrom(con->sockfd, buf, length, 0, con->serveraddr, sizeof(*con->serveraddr));
 	if (n < 0){
 		return NULL;
 	}
@@ -49,27 +49,16 @@ byte* read_packet(int length, connection_credentials* con){
 	return buf;
 }
 
-byte* readADC(commandlist* commands, connection_credentials* con){
-	int* result;
+page* readADC(commandlist* commands, connection_credentials* con){
 	int begin = atoi(commands->args[0]);
 	int end = atoi(commands->args[1]);
 	int count = end - begin + 1;
-	result = (int*)malloc(sizeof(int) * count * 512);
-	for (int i = 0; i < count * 512; i++){
-		result[i] = 0;
-	}
-	int j = 0;
-	byte* pages = (page*)malloc(sizeof(byte) * count * 1034);
+	page* pages = (page*)malloc(sizeof(page) * count);
 	for (int k = 0; k < count; k++){
 		byte* buf = read_packet(commands->message_size, con);
 		if (buf == NULL)
 			return NULL;
-		pages[k] = buf;
-		for (int i = 10; i < commands->message_size; j++, i += 2){
-			result[j] = ((buf[i] << 8) | (buf[i+1] & 0xFF)) - 2048; 
-		}
 	}	
-	commands->result = result;
 	return pages;
 }
 
@@ -78,10 +67,8 @@ int command_execution(commandlist* commands, connection_credentials* connection)
 	int n;
 	byte* sendmessage = createmessage(commands);
 	n = sendto(connection->sockfd, sendmessage, 6, 0, connection->serveraddr, sizeof(*connection->serveraddr));
-	if (n < 0) {
-		debug_printf(n, 1);
+	if (n < 0) 
 		return 1;
-	}
 	read_packet(4, connection);
 	if (commands->number == 4){
 		buf = (byte*)readADC(commands, connection);

@@ -1,2 +1,3 @@
-writeregs 0 2
+stop
 start
+readbuffer 0 100

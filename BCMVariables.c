@@ -1,29 +1,20 @@
 #include "BCMVariables.h"
 
-enum COMMANDS {
-	WRITE_RGSTR = 0x00,
-	START_CYCLE = 0x03,
-	READ_PARAM = 0x04,
-	RESET_CYCL = 0x05,
-	INIT_GENER = 0x06,
-	RESET_COUNT = 0x07,
-	READ_ADCBUF = 0x08,
-	WRITE_FLASH = 0x09,
-	REWRITE_CONF = 0x0a,
-	READ_FLASH = 0x0f,
-};
+// 0 - disabled
+// 1 - enabled
+int debug_mode = 0;
 
 int inputcommands[] = {
-	0x00,
-	0x03,
-	0x04,
-	0x05,
-	0x08,
-	0x06,
-	0x07,
-	0x09,
-	0x0a,
-	0x0f
+	0x00, // write register
+	0x03, // start cycle
+	0x04, // read register
+	0x05, // reset cycle
+	0x08, // read ADC
+	0x06, // initialize generator
+	0x07, // reset counter
+	0x09, // flash write
+	0x0a, // ip rewrite
+	0x0f  // flash read
 };	
 
 int packetlengths[] = {
@@ -32,11 +23,7 @@ int packetlengths[] = {
 	4,
 	0,
 	1034,
-	0,
-	4,
 	2,
-	0,
-	4,
 	0
 };
 
@@ -46,19 +33,28 @@ int command_args_num[] = {
 	0,
 	1,
 	0,
-	2
+	2,
+	0,
+	0
 };
 
-char* args_message = "example: \"ip-address port command [args] ...\"\n";
+char* args_message = "example: \"ip-address command [args] ...\"\n";
 
 char* string_commands[] = {
 	"writeregs",
 	"start",
 	"readregs",
 	"stop",
-	"readbuffer"
+	"readbuffer",
+	"startgen",
+	"countreset"
 };
 
+char* additional_commands[] = {
+	"-S",
+	"-debug_mode",
+	"-file"
+};
 
 commandlist* init_commandlist(){
 	commandlist* list = (commandlist*)malloc(sizeof(commandlist));
@@ -66,24 +62,30 @@ commandlist* init_commandlist(){
 	return list;
 }
 
-void create_next_command_node(commandlist** curlist, int _commandnumber, char** _commandargs){
+commandlist* create_next_command_node(commandlist** curlist, int _commandnumber){
 	commandlist* seekelem = *curlist;
 	commandlist* list = init_commandlist(); 
 	list->number = _commandnumber;
-	list->args = _commandargs; 
+	list->input_number = inputcommands[_commandnumber];
+	list->message_size = packetlengths[_commandnumber];
+	list->args_count = command_args_num[_commandnumber];
+	list->output = 0;
+	list->result = NULL;
+	if (list->args_count != 0)
+		list->args = (char**)malloc(sizeof(char*) * command_args_num[_commandnumber]);
 	if (seekelem == NULL){
+		list->size = (size_t*)malloc(sizeof(size_t));
+		*list->size = 1;
 		*curlist = list;
 	}
 	else {
 		while (seekelem->next != NULL)
 			seekelem = seekelem->next;
 		seekelem->next = list;
+		seekelem->next->size = seekelem->size;
+		*seekelem->size++;
 	}
-}
-
-void error(char *msg) {
-    perror(msg); 
-	exit(0);
+	return list;
 }
 
 void my_strcpy(char** dest, const char* source){
@@ -91,5 +93,9 @@ void my_strcpy(char** dest, const char* source){
 	strcpy(*dest, source);
 }
 
-
-
+void debug_printf(void* ptr, int n){
+	if (debug_mode == 1)
+		for (int i = 0; i < n; i++){
+			printf("%x\n", ((byte*)ptr)[i]);
+		}
+}

@@ -1,0 +1,75 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+BCM_COMMANDPARSER_H	BCMCommandParser.h	3;"	d
+BCM_COMMUNICATION_H	BCMCommunication.h	2;"	d
+BCM_VARIABLES_H	BCMVariables.h	3;"	d
+COMMANDS	old/main.c	/^enum COMMANDS {$/;"	g	file:
+COMM_LIST_COUNT	BCMVariables.h	9;"	d
+INIT_GENER	old/main.c	/^	INIT_GENER = 0x06,$/;"	e	enum:COMMANDS	file:
+READ_ADCBUF	old/main.c	/^	READ_ADCBUF = 0x08,$/;"	e	enum:COMMANDS	file:
+READ_FLASH	old/main.c	/^	READ_FLASH = 0x0f,$/;"	e	enum:COMMANDS	file:
+READ_PARAM	old/main.c	/^	READ_PARAM = 0x04,$/;"	e	enum:COMMANDS	file:
+RESET_COUNT	old/main.c	/^	RESET_COUNT = 0x07,$/;"	e	enum:COMMANDS	file:
+RESET_CYCL	old/main.c	/^	RESET_CYCL = 0x05,$/;"	e	enum:COMMANDS	file:
+REWRITE_CONF	old/main.c	/^	REWRITE_CONF = 0x0a,$/;"	e	enum:COMMANDS	file:
+START_CYCLE	old/main.c	/^	START_CYCLE = 0x03,$/;"	e	enum:COMMANDS	file:
+WRITE_FLASH	old/main.c	/^	WRITE_FLASH = 0x09,$/;"	e	enum:COMMANDS	file:
+WRITE_RGSTR	old/main.c	/^	WRITE_RGSTR = 0x00,$/;"	e	enum:COMMANDS	file:
+_commandlist	BCMVariables.h	/^typedef struct _commandlist {$/;"	s
+_connection_credentials	BCMVariables.h	/^typedef struct _connection_credentials {$/;"	s
+args	BCMVariables.h	/^	char** args;$/;"	m	struct:_commandlist
+args_message	BCMVariables.c	/^char* args_message = "example: \\"ip-address port command [args] ...\\"\\n";$/;"	v
+ax	graph.py	/^ax = fig.add_subplot(111)$/;"	v
+byte	BCMVariables.h	/^typedef unsigned char byte;$/;"	t
+byte	old/main.c	/^typedef unsigned char byte;$/;"	t	file:
+command_args_num	BCMVariables.c	/^int command_args_num[] = {$/;"	v
+command_execution	BCMCommunication.c	/^void command_execution(commandlist* commands, connection_credentials* connection){$/;"	f
+commandlist	BCMVariables.h	/^} commandlist;$/;"	t	typeref:struct:_commandlist
+connection_credentials	BCMVariables.h	/^} connection_credentials;$/;"	t	typeref:struct:_connection_credentials
+count_file_length	BCMCommandParser.c	/^int count_file_length(FILE* file){$/;"	f
+create_command_array	BCMCommandParser.c	/^char** create_command_array(FILE* file, int length, int* spaces){$/;"	f
+create_commandlist	BCMCommandParser.c	/^commandlist* create_commandlist(int argc, char** argv, int index){$/;"	f
+createmessage	BCMCommunication.c	/^byte* createmessage(commandlist* commands){$/;"	f
+createmessage	old/main.c	/^void createmessage(byte* array, int command){$/;"	f
+data	graph.py	/^	data = data.decode('ascii')$/;"	v
+data	graph.py	/^	data = np.array(list_data)$/;"	v
+data	graph.py	/^	data = subprocess.check_output([".\/main", "192.168.1.9", "2195", "-S", "script.bcm"]) $/;"	v
+debug_mode	BCMVariables.c	/^int debug_mode = 0;$/;"	v
+error	old/main.c	/^void error(char *msg) {$/;"	f
+fig	graph.py	/^fig = plt.figure()$/;"	v
+hostname	BCMVariables.h	/^	char* hostname;$/;"	m	struct:_connection_credentials
+initiate_connection	BCMCommunication.c	/^void initiate_connection(connection_credentials* cred){$/;"	f
+inputcommands	BCMVariables.c	/^int inputcommands[] = {$/;"	v
+inputcommands	old/main.c	/^int inputcommands[] = {$/;"	v
+list_data	graph.py	/^	list_data = list(map(int, data.split("\\n")))$/;"	v
+main	main.c	/^int main(int argc, char* argv[]){$/;"	f
+main	old/main.c	/^int main(int argc, char **argv) {$/;"	f
+matplotlib	graph.py	/^import matplotlib.pyplot as plt$/;"	i
+next	BCMVariables.h	/^	struct _commandlist* next;$/;"	m	struct:_commandlist	typeref:struct:_commandlist::_commandlist
+np	graph.py	/^import numpy as np$/;"	i
+number	BCMVariables.h	/^	int number;$/;"	m	struct:_commandlist
+packetlengths	BCMVariables.c	/^int packetlengths[] = {$/;"	v
+packetlengths	old/main.c	/^int packetlengths[] = {$/;"	v
+page	BCMVariables.h	/^typedef byte page[1034];$/;"	t
+page	old/main.c	/^typedef byte page[1034];$/;"	t	file:
+parse_commands	BCMCommandParser.c	/^commandlist* parse_commands(int argc, char* argv[]){$/;"	f
+parse_ipaddress	BCMCommandParser.c	/^connection_credentials* parse_ipaddress(int argc, char* argv[]){$/;"	f
+parse_script	BCMCommandParser.c	/^char** parse_script(const char* filename, int* words){$/;"	f
+plt	graph.py	/^import matplotlib.pyplot as plt$/;"	i
+portno	BCMVariables.h	/^	int portno, sockfd;$/;"	m	struct:_connection_credentials
+printmenu	old/main.c	/^void printmenu(){$/;"	f
+readADC	BCMCommunication.c	/^void readADC(commandlist* commands, int length, int sockfd, struct sockaddr_in serveraddr, int serverlen){$/;"	f
+read_ack	BCMCommunication.c	/^void read_ack(int length, int sockfd, struct sockaddr_in serveraddr, int serverlen){$/;"	f
+read_packet	BCMCommunication.c	/^byte* read_packet(int length, int sockfd, struct sockaddr_in serveraddr, int serverlen, int info){$/;"	f
+read_packet	old/main.c	/^void read_packet(int length, int sockfd, struct sockaddr_in serveraddr, int serverlen){$/;"	f
+serveraddr	BCMVariables.h	/^	struct sockaddr_in* serveraddr;$/;"	m	struct:_connection_credentials	typeref:struct:_connection_credentials::sockaddr_in
+sockfd	BCMVariables.h	/^	int portno, sockfd;$/;"	m	struct:_connection_credentials
+string_commands	BCMVariables.c	/^char* string_commands[] = {$/;"	v
+subprocess	graph.py	/^import subprocess$/;"	i
+time	graph.py	/^import time$/;"	i
+x	graph.py	/^x = np.arange(0,13056)$/;"	v
+y	graph.py	/^y = np.zeros(13056) $/;"	v

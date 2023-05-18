@@ -1,19 +1,43 @@
 #include "BCMCommandParser.h"
 
-
-commandlist* create_commandlist(int argc, char** argv, int index){
+commandlist* create_commandlist(int argc, char** argv){
 	commandlist* list = NULL;
-	for (int i = index; i < argc; ){
-//		char* command = argv[i];
-		for (int j = 0; j < COMM_LIST_SIZE; j++){
+	commandlist* curlist = NULL;
+	for (int i = 0; i < argc; i++){
+		for (int j = 0; j < COMM_LIST_COUNT; j++){
 			if (strcmp(argv[i], string_commands[j]) == 0){
-				i++;
-				char** args = (char**)malloc(sizeof(char*) * command_args_num[j]);
-				for (int k = 0; k < command_args_num[j]; i++, k++){
-					args[k] = argv[i];
+				commandlist* curlist = create_next_command_node(&list, j);	
+				int k = 0;
+				for (; k < curlist->args_count; k++){
+					curlist->args[k] = argv[i + k + 1];
 				}
-				create_next_command_node(&list, j, args);	
+				i = i + k;
 				break;
+			}
+			else {
+				for (int j = 0; j < ADDCOM_LIST_COUNT; j++) {
+					int check = strcmp(argv[i], additional_commands[j]);
+					if (check == 0){
+						int _argc;
+						char** _argv;
+							switch (j){
+							case 0:
+							_argc = 0;
+							_argv = parse_script(argv[i+1], &_argc);
+							list = create_commandlist(_argc, _argv);
+							return list;
+							break;     
+							case 1:
+							debug_mode = atoi(argv[i + 1]);
+							i++;
+							break;
+							case 2:
+							if (curlist != NULL)
+								curlist->output = 1;
+							break;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -21,23 +45,13 @@ commandlist* create_commandlist(int argc, char** argv, int index){
 }
 
 commandlist* parse_commands(int argc, char* argv[]){
-	commandlist* list = NULL;
-	int val = strcmp(argv[3],"-S"); 
-	if (argc == 5 && val == 0) {
-		int _argc = 0;
-		char** _argv = parse_script(argv[4], &_argc);
-		list = create_commandlist(_argc, _argv,0);
-	}
-	else {
-		list = create_commandlist(argc, argv,3);
-	} 
-	return list;
+	return create_commandlist(argc - 2, argv + 2);
 }
 
 int count_file_length(FILE* file){
 	int length = -1;
 	if (file == NULL)
-		error("File is not opened\n");	
+		return -1;
 	for (char c = getc(file); c != EOF; c = getc(file)){
 		length = length + 1;
 	}
@@ -79,11 +93,11 @@ char** create_command_array(FILE* file, int length, int* spaces){
 
 char** parse_script(const char* filename, int* words){
 	if (strstr(filename, ".bcm") == NULL){
-		error("Incorrect file type. use .bcm extension\n");
+		return NULL;
 	}
 	FILE* file = fopen(filename, "r");
 	if (file == NULL)
-		error("File is not opened\n");	
+		return NULL;
 	int length = count_file_length(file);
 	char** argv = create_command_array(file, length, words);
 	return argv;
@@ -91,13 +105,13 @@ char** parse_script(const char* filename, int* words){
 
 
 connection_credentials* parse_ipaddress(int argc, char* argv[]){
-	if (argc < 3) {
+	if (argc < 2) {
 		printf(args_message);
 		exit(1);
 	}
 	connection_credentials* cred;
 	cred = (connection_credentials*)malloc(sizeof(connection_credentials));
 	cred->hostname = argv[1];
-	cred->portno = atoi(argv[2]);
+	cred->portno = 2195;
 	return cred;
 }

@@ -1,7 +1,10 @@
+// Communication
 #ifndef BCM_COMMUNICATION_H
 #define BCM_COMMUNICATION_H 
 
 #include "BCMVariables.h"
+#include "BCMCommandParser.h"
+#include <sys/time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,9 +15,9 @@
 #include <netdb.h> 
 
 // Initiating connection between the host and BCM
-void initiate_connection(connection_credentials* cred);
+int initiate_connection(connection_credentials* cred);
 
 // Executing command
-void command_execution(commandlist* commands, connection_credentials* connection);
+int command_execution(commandlist* commands, connection_credentials* connection);
 
 #endif
