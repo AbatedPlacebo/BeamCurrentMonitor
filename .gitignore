@@ -3,3 +3,5 @@
 *.sh
 ./main
 *.vim
+*.swp
+*.swo
