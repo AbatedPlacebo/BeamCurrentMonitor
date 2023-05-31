@@ -24,6 +24,9 @@ int packetlengths[] = {
 	0,
 	1034,
 	2,
+	0,
+	0,
+	0,
 	0
 };
 
@@ -34,6 +37,9 @@ int command_args_num[] = {
 	1,
 	0,
 	2,
+	0,
+	0,
+	0,
 	0,
 	0
 };
@@ -47,7 +53,10 @@ char* string_commands[] = {
 	"stop",
 	"readbuffer",
 	"startgen",
-	"countreset"
+	"countreset",
+	"flashwrite",
+	"iprewrite",
+	"flashread"
 };
 
 char* additional_commands[] = {

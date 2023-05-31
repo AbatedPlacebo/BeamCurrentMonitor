@@ -8,7 +8,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#define COMM_LIST_COUNT 7
+#define COMM_LIST_COUNT 10
 #define ADDCOM_LIST_COUNT 3
 
 typedef unsigned char byte;
