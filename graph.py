@@ -7,13 +7,17 @@ plt.ion()
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.set_ylim([-2048,2048])
+ax.set_xlabel("Номер точки из АЦП");
+ax.set_ylabel("Значения точек АЦП");
+ax.set_title("Осциллограмма выборок АЦП из блока электроники");
 x = np.arange(0,65536)
 y = np.zeros(65536) 
 line1, = ax.plot(x, y, 'bo')
-#subprocess.run(["./main", "192.168.1.9", "writeregs", "0", "2" "writeregs", "2", "1", "startgen"]) 
+ax.grid(True,'both')
+subprocess.run(["./main", "192.168.1.9", "writeregs", "0", "2" "writeregs", "2", "1", "startgen"]) 
 while True:
-#	subprocess.check_output(["./main", "192.168.1.9", "stop", "start", "readbuffer", "0", "127", "-file", "signal.txt"]) 
-	f = open("wave.txt", "r")
+	subprocess.check_output(["./main", "192.168.1.9", "stop", "start", "readbuffer", "0", "127", "-file", "signal.txt"]) 
+	f = open("signal.txt", "r")
 	data = f.read()
 	splitted = data.split("\n")
 	splitted.pop()
